@@ -1,6 +1,6 @@
 .stats {
   padding: 5rem 1.5rem;
-  background: var(--bg-elevated);
+  background: var(--bg);
   border-top: 1px solid var(--border);
 }
 
@@ -39,8 +39,8 @@
 .stats__title,
 .stats__subtitle {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
 }
 
 .stats.in-view .stats__eyebrow,
@@ -68,8 +68,8 @@
   padding: 2rem;
   text-align: center;
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease-out, transform 0.3s ease, box-shadow 0.3s ease;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.3s ease;
 }
 
 .stats.in-view .stat-card {
@@ -103,7 +103,15 @@
   color: var(--accent-dark);
   font-weight: 600;
   border-radius: var(--radius-full);
-  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats.in-view .stats__cta {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.35s;
 }
 
 .stats__cta:hover {

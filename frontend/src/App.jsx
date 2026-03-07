@@ -1,10 +1,11 @@
 import Header from './components/Header'
 import Hero from './components/Hero'
+import FeaturesShowcase from './components/FeaturesShowcase'
 import HowItWorks from './components/HowItWorks'
-import Features from './components/Features'
 import Stats from './components/Stats'
 import About from './components/About'
 import CtaSection from './components/CtaSection'
+import ContactSection from './components/ContactSection'
 import Footer from './components/Footer'
 
 function App() {
@@ -14,10 +15,11 @@ function App() {
       <main>
         <Hero />
         <HowItWorks />
-        <Features />
+        <FeaturesShowcase />
         <Stats />
         <About />
-        <CtaSection />
+        {/* <CtaSection /> */}
+        <ContactSection />
       </main>
       <Footer />
     </>

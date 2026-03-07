@@ -1,24 +1,27 @@
-/* RoadGuard theme: soft dark gradient background, green accent */
+/* Lemon-style theme: section color separation, green accent (replacing yellow) */
 :root {
-  --bg: #e5e0d8;
-  --bg-elevated: #ddd8d0;
-  --bg-gradient-start: #e8e3db;
-  --bg-gradient-end: #d8d2c9;
-  --surface: #f5f2ed;
-  --border: rgba(0, 0, 0, 0.1);
-  --text: #1a1a1a;
-  --text-muted: #5c5c5c;
+  --bg: #FFFFFF;
+  --bg-elevated: #FAFAF9;
+  --bg-warm: #FFFBF7;
+  --bg-section-alt: #F0FDF4;
+  --bg-section-green: #ECFDF5;
+  --surface: #FFFFFF;
+  --border: rgba(0, 0, 0, 0.06);
+  --text: #0a0a0a;
+  --text-muted: #737373;
   --accent: #10b981;
   --accent-hover: #059669;
   --accent-dark: #ffffff;
-  --accent-soft: rgba(16, 185, 129, 0.2);
+  --accent-soft: rgba(16, 185, 129, 0.12);
+  --hero-gradient-left: #f0fdf4;
+  --hero-gradient-right: #d1fae5;
   --font-display: "DM Serif Text", "DM Serif Text Placeholder", serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --radius: 12px;
   --radius-lg: 20px;
   --radius-full: 100px;
-  --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 * {
@@ -29,12 +32,12 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 80px;
 }
 
 body {
   font-family: var(--font-body);
-  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg) 40%, var(--bg-gradient-end) 100%);
-  background-attachment: fixed;
+  background: var(--bg);
   min-height: 100vh;
   color: var(--text);
   line-height: 1.6;
@@ -62,11 +65,11 @@ ul {
   list-style: none;
 }
 
-/* Scroll-triggered fade-in animation */
+/* Scroll-triggered: content fades in and slides up when section enters viewport */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(28px);
   }
   to {
     opacity: 1;
@@ -82,3 +85,15 @@ ul {
 .animate-in-delay-2 { animation-delay: 0.2s; }
 .animate-in-delay-3 { animation-delay: 0.3s; }
 .animate-in-delay-4 { animation-delay: 0.4s; }
+
+/* Section scroll-in: use 0.7s and 28px for consistent “come in” effect */
+.section-scroll-in {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.section-scroll-in.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}

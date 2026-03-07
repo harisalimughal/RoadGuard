@@ -6,6 +6,7 @@ const NAV_LINKS = [
   { label: 'How it works', href: '#how' },
   { label: 'Features', href: '#features' },
   { label: 'About', href: '#about' },
+  { label: 'Contact Us', href: '#contact' },
 ]
 
 export default function Header() {
