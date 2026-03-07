@@ -5,7 +5,6 @@ export default function Hero() {
     <section className="hero">
       <div className="hero__bg" aria-hidden="true" />
       <div className="hero__inner">
-        <p className="hero__badge">AI-Powered Traffic Safety</p>
         <h1 className="hero__title">
           Turn every journey
           <br />

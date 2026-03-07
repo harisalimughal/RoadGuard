@@ -19,9 +19,9 @@ const FOOTER_LINKS = {
 
 export default function Footer() {
   return (
-    <footer id="contact" className="footer">
+    <footer className="footer">
       <div className="footer__inner">
-        <div className="footer__top">
+        {/* <div className="footer__top">
           <a href="#" className="footer__logo">
             <span className="footer__logo-icon"><IconShield /></span>
             RoadGuard
@@ -32,7 +32,7 @@ export default function Footer() {
           <a href="#download" className="footer__cta">
             Get Started
           </a>
-        </div>
+        </div> */}
         <div className="footer__grid">
           {Object.entries(FOOTER_LINKS).map(([title, links]) => (
             <div key={title} className="footer__col">

@@ -1,6 +1,7 @@
 .how {
   padding: 5rem 1.5rem;
   background: var(--bg);
+  border-top: 1px solid var(--border);
 }
 
 .how__inner {
@@ -34,8 +35,8 @@
 .how__title,
 .how__subtitle {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
 }
 
 .how.in-view .how__eyebrow,
@@ -66,8 +67,8 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s ease-out, transform 0.3s ease, box-shadow 0.3s ease;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out, box-shadow 0.3s ease;
 }
 
 .how.in-view .how-step {
@@ -75,8 +76,8 @@
   transform: translateY(0);
 }
 
-.how-step:hover {
-  transform: translateX(4px);
+.how.in-view .how-step:hover {
+  transform: translateY(0) translateX(4px);
   box-shadow: var(--shadow);
 }
 
@@ -114,7 +115,15 @@
   color: var(--accent-dark);
   font-weight: 600;
   border-radius: var(--radius-full);
-  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.how.in-view .how__cta {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.3s;
 }
 
 .how__cta:hover {
