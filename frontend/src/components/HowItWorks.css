@@ -1,0 +1,124 @@
+.how {
+  padding: 5rem 1.5rem;
+  background: var(--bg);
+}
+
+.how__inner {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.how__eyebrow {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.how__title {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.how__subtitle {
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+}
+
+.how__eyebrow,
+.how__title,
+.how__subtitle {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.how.in-view .how__eyebrow,
+.how.in-view .how__title,
+.how.in-view .how__subtitle {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.how.in-view .how__eyebrow { transition-delay: 0s; }
+.how.in-view .how__title { transition-delay: 0.08s; }
+.how.in-view .how__subtitle { transition-delay: 0.16s; }
+
+.how__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.how-step {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease-out, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.how.in-view .how-step {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.how-step:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow);
+}
+
+.how-step__num {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: var(--accent-dark);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 50%;
+}
+
+.how-step__title {
+  font-size: 1.05rem;
+  margin-bottom: 0.25rem;
+  color: var(--text);
+}
+
+.how-step__text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.how__cta {
+  display: inline-block;
+  padding: 0.85rem 1.75rem;
+  background: var(--accent);
+  color: var(--accent-dark);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.how__cta:hover {
+  background: var(--accent-hover);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}

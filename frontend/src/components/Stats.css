@@ -1,0 +1,119 @@
+.stats {
+  padding: 5rem 1.5rem;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+}
+
+.stats__inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.stats__eyebrow {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.stats__title {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.stats__subtitle {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  margin-bottom: 2.5rem;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stats__eyebrow,
+.stats__title,
+.stats__subtitle {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.stats.in-view .stats__eyebrow,
+.stats.in-view .stats__title,
+.stats.in-view .stats__subtitle {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stats.in-view .stats__eyebrow { transition-delay: 0s; }
+.stats.in-view .stats__title { transition-delay: 0.1s; }
+.stats.in-view .stats__subtitle { transition-delay: 0.2s; }
+
+.stats__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats.in-view .stat-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.stat-card__value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.stat-card__label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.stats__cta {
+  display: inline-block;
+  padding: 0.85rem 1.75rem;
+  background: var(--accent);
+  color: var(--accent-dark);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats__cta:hover {
+  background: var(--accent-hover);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+@media (max-width: 640px) {
+  .stats__grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,84 @@
+/* RoadGuard theme: soft dark gradient background, green accent */
+:root {
+  --bg: #e5e0d8;
+  --bg-elevated: #ddd8d0;
+  --bg-gradient-start: #e8e3db;
+  --bg-gradient-end: #d8d2c9;
+  --surface: #f5f2ed;
+  --border: rgba(0, 0, 0, 0.1);
+  --text: #1a1a1a;
+  --text-muted: #5c5c5c;
+  --accent: #10b981;
+  --accent-hover: #059669;
+  --accent-dark: #ffffff;
+  --accent-soft: rgba(16, 185, 129, 0.2);
+  --font-display: "DM Serif Text", "DM Serif Text Placeholder", serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-full: 100px;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg) 40%, var(--bg-gradient-end) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+}
+
+ul {
+  list-style: none;
+}
+
+/* Scroll-triggered fade-in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fadeInUp 0.7s ease-out forwards;
+}
+
+.animate-in-delay-1 { animation-delay: 0.1s; }
+.animate-in-delay-2 { animation-delay: 0.2s; }
+.animate-in-delay-3 { animation-delay: 0.3s; }
+.animate-in-delay-4 { animation-delay: 0.4s; }
