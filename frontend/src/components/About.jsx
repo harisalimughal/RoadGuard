@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { IconShield } from './Icons'
 import { useInView } from '../hooks/useInView'
 import './About.css'
@@ -34,9 +35,9 @@ export default function About() {
           and quick access to help. RoadGuard is built for real-world use — clear, fast, and focused on
           keeping you and others safe on the road.
         </p>
-        <a href="#download" className="footer__cta">
+        <Link to="/app" className="footer__cta">
             Get Started
-          </a>
+          </Link>
       </div>
     </section>
   )

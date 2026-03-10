@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useInView } from '../hooks/useInView'
 import './HowItWorks.css'
 
@@ -29,7 +30,7 @@ export default function HowItWorks() {
             </div>
           ))}
         </div>
-        <a href="#download" className="how__cta">Get Started</a>
+        <Link to="/app" className="how__cta">Get Started</Link>
       </div>
     </section>
   )

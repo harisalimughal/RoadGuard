@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useInView } from '../hooks/useInView'
 import './CtaSection.css'
 
@@ -13,9 +14,9 @@ export default function CtaSection() {
           Join the community. Get predictive alerts, report incidents, and access emergency help — all in one place.
         </p>
         <div className="cta-section__actions">
-          <a href="#" className="cta-section__btn cta-section__btn--primary">
+          <Link to="/app" className="cta-section__btn cta-section__btn--primary">
             Get Started Free
-          </a>
+          </Link>
           <a href="#how" className="cta-section__btn cta-section__btn--secondary">
             Watch Demo
           </a>

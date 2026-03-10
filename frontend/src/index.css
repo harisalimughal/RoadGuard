@@ -1,27 +1,27 @@
-/* Lemon-style theme: section color separation, green accent (replacing yellow) */
+/* Dark, modern theme: emerald accent on deep slate background */
 :root {
-  --bg: #FFFFFF;
-  --bg-elevated: #FAFAF9;
-  --bg-warm: #FFFBF7;
-  --bg-section-alt: #F0FDF4;
-  --bg-section-green: #ECFDF5;
-  --surface: #FFFFFF;
-  --border: rgba(0, 0, 0, 0.06);
-  --text: #0a0a0a;
-  --text-muted: #737373;
-  --accent: #10b981;
-  --accent-hover: #059669;
-  --accent-dark: #ffffff;
-  --accent-soft: rgba(16, 185, 129, 0.12);
-  --hero-gradient-left: #f0fdf4;
-  --hero-gradient-right: #d1fae5;
-  --font-display: "DM Serif Text", "DM Serif Text Placeholder", serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bg: #020617;
+  --bg-elevated: #020617;
+  --bg-warm: #020617;
+  --bg-section-alt: #020617;
+  --bg-section-green: #022c22;
+  --surface: #020617;
+  --border: rgba(148, 163, 184, 0.25);
+  --text: #e5e7eb;
+  --text-muted: #9ca3af;
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+  --accent-dark: #020617;
+  --accent-soft: rgba(34, 197, 94, 0.18);
+  --hero-gradient-left: #022c22;
+  --hero-gradient-right: #0f172a;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --radius: 12px;
   --radius-lg: 20px;
   --radius-full: 100px;
-  --shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
-  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow: 0 2px 20px rgba(15, 23, 42, 0.45);
+  --shadow-hover: 0 18px 45px rgba(15, 23, 42, 0.75);
 }
 
 * {
@@ -43,11 +43,27 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: -40px;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.14) 0, transparent 55%),
+    radial-gradient(circle at 80% 0%, rgba(34, 197, 94, 0.18) 0, transparent 55%),
+    radial-gradient(circle at 0% 80%, rgba(236, 72, 153, 0.12) 0, transparent 55%);
+  opacity: 0.55;
+  mix-blend-mode: screen;
 }
 
 h1, h2, h3 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 a {

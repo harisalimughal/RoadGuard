@@ -1,9 +1,19 @@
+import { Link } from 'react-router-dom'
 import './Hero.css'
 
 export default function Hero() {
   return (
     <section className="hero">
-      <div className="hero__bg" aria-hidden="true" />
+      <video
+        className="hero__bg"
+        src="/motorway.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        aria-hidden="true"
+      />
+      <div className="hero__overlay" aria-hidden="true" />
       <div className="hero__inner">
         <h1 className="hero__title">
           Turn every journey
@@ -15,9 +25,9 @@ export default function Hero() {
           and guides you on the safest routes — before danger happens.
         </p>
         <div className="hero__actions">
-          <a href="#download" className="hero__btn hero__btn--primary">
+          <Link to="/app" className="hero__btn hero__btn--primary">
             Get Started Free
-          </a>
+          </Link>
           <a href="#how" className="hero__btn hero__btn--secondary">
             See How It Works
           </a>

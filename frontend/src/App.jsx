@@ -1,28 +1,13 @@
-import Header from './components/Header'
-import Hero from './components/Hero'
-import FeaturesShowcase from './components/FeaturesShowcase'
-import HowItWorks from './components/HowItWorks'
-import Stats from './components/Stats'
-import About from './components/About'
-import CtaSection from './components/CtaSection'
-import ContactSection from './components/ContactSection'
-import Footer from './components/Footer'
+import { Routes, Route } from 'react-router-dom'
+import Landing from './pages/Landing'
+import AppProduct from './pages/AppProduct'
 
 function App() {
   return (
-    <>
-      <Header />
-      <main>
-        <Hero />
-        <HowItWorks />
-        <FeaturesShowcase />
-        <Stats />
-        <About />
-        {/* <CtaSection /> */}
-        <ContactSection />
-      </main>
-      <Footer />
-    </>
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/app" element={<AppProduct />} />
+    </Routes>
   )
 }
 

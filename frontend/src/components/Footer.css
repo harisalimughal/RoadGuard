@@ -1,6 +1,6 @@
 .footer {
-  background: #f3f4f6;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: #1e293b;
+  border-top: 1px solid var(--border);
   padding: 4rem 0 2rem;
 }
 
@@ -73,7 +73,7 @@
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 1rem;
@@ -87,17 +87,17 @@
 
 .footer__link {
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: #cbd5e1;
   transition: color 0.2s ease;
 }
 
 .footer__link:hover {
-  color: var(--text);
+  color: #f1f5f9;
 }
 
 .footer__bottom {
   padding-top: 2rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -108,11 +108,11 @@
 .footer__copy,
 .footer__contact {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: #94a3b8;
 }
 
 .footer__contact a {
-  color: var(--text);
+  color: #e2e8f0;
 }
 
 .footer__contact a:hover {
