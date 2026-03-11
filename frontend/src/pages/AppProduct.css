@@ -238,13 +238,16 @@
 
 .app-product__map {
   position: relative;
-  background-image: url('/dummy-map.svg');
-  background-size: cover;
-  background-position: center;
   border: 1px solid var(--app-border-strong);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.32);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35), 0 0 16px rgba(34, 197, 94, 0.32), 0 10px 24px rgba(2, 6, 23, 0.32);
+}
+
+.app-product__leaflet-map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
 .app-product__map::before,
@@ -255,6 +258,7 @@
   right: -6%;
   height: 4px;
   border-radius: 999px;
+  display: none;
 }
 
 .app-product__map::before {
@@ -314,6 +318,9 @@
 
 .app-product__left-half,
 .app-product__right-half {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: clamp(0.55rem, 1.1vh, 0.9rem);
   min-width: 0;
   min-height: 0;
 }
@@ -350,7 +357,7 @@
   border: 0;
   border-radius: 0;
   background: rgba(2, 6, 23, 0.72);
-  min-height: clamp(130px, 19vh, 170px);
+  min-height: clamp(108px, 15.5vh, 144px);
   max-height: 100%;
   display: flex;
   flex-direction: column;
@@ -365,6 +372,36 @@
   flex-direction: column;
 }
 
+.card--location {
+  background: rgba(2, 6, 23, 0.76);
+  min-height: 84px;
+}
+
+.card__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: clamp(0.35rem, 0.65vh, 0.5rem) clamp(0.5rem, 0.9vw, 0.72rem);
+  background: rgba(34, 197, 94, 0.16);
+}
+
+.card__location-meta {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: clamp(0.62rem, 0.82vw, 0.76rem);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.card__location-text {
+  margin: 0;
+  padding: 0.62rem 0.72rem 0.72rem;
+  color: var(--text);
+  font-size: clamp(0.7rem, 0.95vw, 0.9rem);
+  line-height: 1.35;
+}
+
 .card__title {
   margin: 0;
   background: rgba(34, 197, 94, 0.16);
@@ -374,15 +411,34 @@
   padding: clamp(0.35rem, 0.65vh, 0.5rem) clamp(0.5rem, 0.9vw, 0.72rem);
 }
 
+.card__title-row .card__title {
+  background: transparent;
+  padding: 0;
+}
+
+.card--location .card__title {
+  color: #60a5fa;
+}
+
 .card__title--warning {
   color: #facc15;
   background: rgba(34, 197, 94, 0.12);
+}
+
+.card--contacts-inline .card__title {
+  color: #ef4444;
 }
 
 .card__list {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.card--contacts-inline .card__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .card__list li {
@@ -437,6 +493,44 @@
   flex: 1;
 }
 
+.card__alert-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #fde68a;
+}
+
+.card__alert-sign {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #f8fafc;
+  background: #dc2626;
+  box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.72), 0 0 10px rgba(248, 113, 113, 0.9), 0 0 18px rgba(220, 38, 38, 0.62);
+  animation: alertPulse 2.1s ease-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes alertPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.78), 0 0 10px rgba(248, 113, 113, 0.9), 0 0 18px rgba(220, 38, 38, 0.62);
+  }
+
+  70% {
+    box-shadow: 0 0 0 12px rgba(220, 38, 38, 0), 0 0 16px rgba(248, 113, 113, 0.35), 0 0 26px rgba(220, 38, 38, 0.22);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0), 0 0 10px rgba(248, 113, 113, 0.9), 0 0 18px rgba(220, 38, 38, 0.62);
+  }
+}
+
 .assistant-bubble {
   grid-column: 1 / -1;
   border: 1px solid var(--border);
@@ -452,8 +546,9 @@
   border-radius: 10px;
   background: rgba(15, 23, 42, 0.88);
   display: grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: 1fr auto auto;
   overflow: hidden;
+  flex: 1;
   min-height: 0;
   box-shadow: 0 10px 24px rgba(2, 6, 23, 0.32);
 }
@@ -558,7 +653,7 @@
 
 .app-product__chat {
   position: absolute;
-  right: clamp(0.8rem, 1.6vw, 1.3rem);
+  right: clamp(5.2rem, 4.2vw, 4.4rem);
   bottom: clamp(0.8rem, 1.6vh, 1.2rem);
   z-index: 30;
   display: flex;
@@ -731,6 +826,7 @@
   padding: clamp(0.2rem, 0.45vh, 0.3rem) clamp(0.42rem, 0.7vw, 0.6rem);
   border: 2px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 6px 12px rgba(15, 23, 42, 0.2);
+  z-index: 1;
 }
 
 .tag--danger {
