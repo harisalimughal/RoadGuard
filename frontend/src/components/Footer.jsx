@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { IconShield } from './Icons'
 import './Footer.css'
 
@@ -5,7 +6,7 @@ const FOOTER_LINKS = {
   Product: [
     { label: 'Features', href: '#features' },
     { label: 'How it works', href: '#how' },
-    { label: 'Download', href: '#download' },
+    { label: 'Download', to: '/app' },
   ],
   Company: [
     { label: 'About', href: '#about' },
@@ -39,10 +40,12 @@ export default function Footer() {
               <h4 className="footer__col-title">{title}</h4>
               <ul>
                 {links.map((link) => (
-                  <li key={link.href}>
-                    <a href={link.href} className="footer__link">
-                      {link.label}
-                    </a>
+                  <li key={link.to || link.href}>
+                    {link.to ? (
+                      <Link to={link.to} className="footer__link">{link.label}</Link>
+                    ) : (
+                      <a href={link.href} className="footer__link">{link.label}</a>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import { IconClipboard, IconAlertTriangle, IconRoute, IconPhone, IconBot, IconSos } from './Icons'
 import { useInView } from '../hooks/useInView'
@@ -34,6 +35,7 @@ export default function FeaturesShowcase() {
     <section ref={ref} className={'features-showcase ' + (inView ? 'in-view' : '')} aria-labelledby="showcase-heading">
       <div className="features-showcase__bg" aria-hidden="true" />
       <div className="features-showcase__inner">
+        <p className="features-showcase__eyebrow">Features</p>
         <h2 id="showcase-heading" className="features-showcase__title">
           Built for safer roads
         </h2>
@@ -47,7 +49,6 @@ export default function FeaturesShowcase() {
               <div
                 key={f.title}
                 className={'features-showcase__item' + (i === activeIndex ? ' features-showcase__item--active' : '')}
-                onMouseEnter={() => setActiveIndex(i)}
               >
                 <div className="features-showcase__item-content">
                   <span className="features-showcase__item-icon"><f.Icon /></span>
@@ -58,8 +59,8 @@ export default function FeaturesShowcase() {
                 </div>
                 <div className="features-showcase__progress-wrap">
                   <div
-                    className="features-showcase__progress-bar"
-                    style={{ animationDelay: `${i * BAR_DURATION}s` }}
+                    className={'features-showcase__progress-bar' + (i === activeIndex ? ' features-showcase__progress-bar--active' : '')}
+                    key={i === activeIndex ? activeIndex : `inactive-${i}`}
                   />
                 </div>
               </div>
@@ -79,9 +80,9 @@ export default function FeaturesShowcase() {
           </div>
         </div>
 
-        <a href="#download" className="features-showcase__cta">
+        <Link to="/app" className="features-showcase__cta">
           Get Started
-        </a>
+        </Link>
       </div>
     </section>
   )

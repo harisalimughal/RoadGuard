@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" fill="none">
+  <rect width="1600" height="900" fill="#e6ecef"/>
+
+  <!-- city blocks -->
+  <g opacity="0.95">
+    <rect x="40" y="40" width="220" height="120" rx="8" fill="#d5dadd"/>
+    <rect x="290" y="40" width="250" height="120" rx="8" fill="#d9dddf"/>
+    <rect x="570" y="40" width="220" height="120" rx="8" fill="#d2d8da"/>
+    <rect x="820" y="40" width="260" height="120" rx="8" fill="#d8dcde"/>
+    <rect x="1110" y="40" width="220" height="120" rx="8" fill="#d2d8da"/>
+
+    <rect x="60" y="200" width="200" height="110" rx="8" fill="#d9dddf"/>
+    <rect x="290" y="200" width="280" height="110" rx="8" fill="#d3d9db"/>
+    <rect x="600" y="200" width="190" height="110" rx="8" fill="#d9dddf"/>
+    <rect x="820" y="200" width="260" height="110" rx="8" fill="#d5dadd"/>
+    <rect x="1110" y="200" width="300" height="110" rx="8" fill="#d9dddf"/>
+
+    <rect x="40" y="350" width="240" height="120" rx="8" fill="#d3d9db"/>
+    <rect x="310" y="350" width="220" height="120" rx="8" fill="#d9dddf"/>
+    <rect x="560" y="350" width="230" height="120" rx="8" fill="#d2d8da"/>
+    <rect x="820" y="350" width="280" height="120" rx="8" fill="#d8dcde"/>
+    <rect x="1130" y="350" width="250" height="120" rx="8" fill="#d3d9db"/>
+
+    <rect x="70" y="510" width="220" height="120" rx="8" fill="#d9dddf"/>
+    <rect x="320" y="510" width="260" height="120" rx="8" fill="#d2d8da"/>
+    <rect x="610" y="510" width="200" height="120" rx="8" fill="#d9dddf"/>
+    <rect x="840" y="510" width="260" height="120" rx="8" fill="#d4d9db"/>
+    <rect x="1130" y="510" width="260" height="120" rx="8" fill="#d9dddf"/>
+  </g>
+
+  <!-- parks -->
+  <g>
+    <rect x="1330" y="90" width="210" height="190" rx="18" fill="#b7dcb3"/>
+    <rect x="1220" y="650" width="280" height="180" rx="18" fill="#b3d9b0"/>
+    <rect x="90" y="700" width="260" height="150" rx="18" fill="#b7ddb4"/>
+  </g>
+
+  <!-- river -->
+  <path d="M0 640C190 600 310 740 470 710C650 676 730 560 920 595C1120 632 1290 816 1600 768V900H0V640Z" fill="#94c7e8"/>
+  <path d="M0 665C220 620 330 770 500 740C680 707 770 592 950 620C1140 649 1305 835 1600 788" stroke="#79b7de" stroke-width="10" opacity="0.7"/>
+
+  <!-- roads -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-20 150C220 150 330 190 510 215C740 246 870 230 1030 190C1220 145 1430 125 1620 136" stroke="#f2a33d" stroke-width="18"/>
+    <path d="M-20 260C210 256 350 312 520 334C730 361 900 343 1095 315C1270 290 1465 286 1620 300" stroke="#5db35f" stroke-width="18"/>
+    <path d="M-20 448C170 430 290 510 470 530C690 554 860 530 1050 502C1270 470 1420 468 1620 486" stroke="#5db35f" stroke-width="18"/>
+    <path d="M-20 560C170 550 305 612 470 632C650 654 790 640 980 620C1210 596 1420 620 1620 650" stroke="#f2a33d" stroke-width="18"/>
+
+    <path d="M210 -20C230 150 185 280 220 430C255 590 360 710 390 920" stroke="#ffffff" stroke-width="8" opacity="0.6"/>
+    <path d="M720 -20C710 180 760 320 770 500C778 650 730 760 700 920" stroke="#ffffff" stroke-width="8" opacity="0.55"/>
+    <path d="M1190 -20C1170 190 1220 340 1210 520C1200 680 1260 770 1320 920" stroke="#ffffff" stroke-width="8" opacity="0.5"/>
+  </g>
+</svg>

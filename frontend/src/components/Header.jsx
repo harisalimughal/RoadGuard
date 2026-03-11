@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { IconShield } from './Icons'
 import './Header.css'
 
@@ -15,10 +16,10 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header__inner">
-        <a href="#" className="header__logo">
+        <Link to="/" className="header__logo">
           <span className="header__logo-icon"><IconShield /></span>
           <span>RoadGuard</span>
-        </a>
+        </Link>
         <nav className={`header__nav ${menuOpen ? 'header__nav--open' : ''}`}>
           {NAV_LINKS.map((link) => (
             <a
@@ -32,9 +33,9 @@ export default function Header() {
           ))}
         </nav>
         <div className="header__actions">
-          <a href="#download" className="header__cta header__cta--primary">
+          <Link to="/app" className="header__cta header__cta--primary">
             Get Started
-          </a>
+          </Link>
           <button
             type="button"
             className="header__menu-btn"

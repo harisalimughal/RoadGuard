@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useInView } from '../hooks/useInView'
 import './Stats.css'
 
@@ -27,9 +28,9 @@ export default function Stats() {
             </div>
           ))}
         </div>
-        <a href="#download" className="stats__cta">
+        <Link to="/app" className="stats__cta">
           Start staying safer
-        </a>
+        </Link>
       </div>
     </section>
   )

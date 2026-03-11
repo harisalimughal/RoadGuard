@@ -21,6 +21,7 @@ export default function ContactSection() {
   return (
     <section id="contact" ref={ref} className={'contact-section ' + (inView ? 'in-view' : '')}>
       <div className="contact-section__inner">
+        <p className="contact-section__eyebrow">Get in touch</p>
         <h2 className="contact-section__title">Contact Us</h2>
         <p className="contact-section__subtitle">
           Have questions or feedback? We’d love to hear from you.

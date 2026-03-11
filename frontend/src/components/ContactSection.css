@@ -1,26 +1,35 @@
 .contact-section {
-  padding: 4rem 1.5rem;
-  background: #ffffff;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 5rem 1.5rem;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
 }
 
 .contact-section__inner {
-  max-width: 520px;
+  max-width: 700px;
   margin: 0 auto;
   text-align: center;
 }
 
-.contact-section__title {
-  font-size: clamp(1.75rem, 3.5vw, 2.25rem);
-  letter-spacing: -0.02em;
+.contact-section__eyebrow {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   margin-bottom: 0.75rem;
+}
+
+.contact-section__title {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
   color: var(--text);
 }
 
 .contact-section__subtitle {
   font-size: 1.05rem;
   color: var(--text-muted);
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .contact-section__form {
@@ -46,8 +55,8 @@
   font-size: 1rem;
   font-family: var(--font-body);
   color: var(--text);
-  background: #fafafa;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -60,7 +69,7 @@
 .contact-section__input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .contact-section__textarea {
@@ -84,13 +93,16 @@
 .contact-section__submit:hover {
   background: var(--accent-hover);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
 }
 
 .contact-section__success {
-  padding: 2rem;
-  background: rgba(16, 185, 129, 0.1);
+  padding: 1.5rem 1.5rem;
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .contact-section__success p {
@@ -114,6 +126,7 @@
   text-decoration: underline;
 }
 
+.contact-section__eyebrow,
 .contact-section__title,
 .contact-section__subtitle,
 .contact-section__form,
@@ -124,6 +137,7 @@
   transition: opacity 0.7s ease-out, transform 0.7s ease-out;
 }
 
+.contact-section.in-view .contact-section__eyebrow,
 .contact-section.in-view .contact-section__title,
 .contact-section.in-view .contact-section__subtitle,
 .contact-section.in-view .contact-section__form,
@@ -133,8 +147,9 @@
   transform: translateY(0);
 }
 
-.contact-section.in-view .contact-section__title { transition-delay: 0s; }
-.contact-section.in-view .contact-section__subtitle { transition-delay: 0.08s; }
+.contact-section.in-view .contact-section__eyebrow { transition-delay: 0s; }
+.contact-section.in-view .contact-section__title { transition-delay: 0.08s; }
+.contact-section.in-view .contact-section__subtitle { transition-delay: 0.16s; }
 .contact-section.in-view .contact-section__form,
-.contact-section.in-view .contact-section__success { transition-delay: 0.16s; }
-.contact-section.in-view .contact-section__email-note { transition-delay: 0.24s; }
+.contact-section.in-view .contact-section__success { transition-delay: 0.24s; }
+.contact-section.in-view .contact-section__email-note { transition-delay: 0.32s; }
