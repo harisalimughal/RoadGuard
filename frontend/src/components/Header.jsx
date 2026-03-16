@@ -17,8 +17,8 @@ export default function Header() {
     <header className="header">
       <div className="header__inner">
         <Link to="/" className="header__logo">
-          <span className="header__logo-icon"><IconShield /></span>
-          <span>RoadGuard</span>
+          <img src="/RoadGuardLogo.png" alt="RoadGuard" className="header__logo-img" />
+          <span className="header__logo-text">RoadGuard</span>
         </Link>
         <nav className={`header__nav ${menuOpen ? 'header__nav--open' : ''}`}>
           {NAV_LINKS.map((link) => (

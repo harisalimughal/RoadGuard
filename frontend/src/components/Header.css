@@ -4,10 +4,9 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(30, 41, 59, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  background: #f3f4f6;
+  border-bottom: 1px solid #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.3s ease;
 }
 
@@ -18,18 +17,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  position: relative;
 }
 
 .header__logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 1.35rem;
-  color: #f1f5f9;
+  gap: 0.55rem;
+  text-decoration: none;
   transition: opacity 0.2s ease;
+  flex: 1;
+}
+
+.header__logo-img {
+  height: 78px;
+  width: auto;
+  object-fit: contain;
+  margin-top: 6px;
+}
+
+.header__logo-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.01em;
 }
 
 .header__logo:hover {
@@ -47,42 +58,47 @@
   display: flex;
   align-items: center;
   gap: 2rem;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .header__link {
   font-size: 0.95rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: #374151;
   transition: color 0.2s ease;
 }
 
 .header__link:hover {
-  color: #f1f5f9;
+  color: #111827;
 }
 
 .header__actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex: 1;
   gap: 1rem;
 }
 
 .header__cta {
-  padding: 0.6rem 1.25rem;
-  border-radius: var(--radius-full);
+  padding: 0.6rem 1.4rem;
+  border-radius: 9999px;
   font-weight: 600;
   font-size: 0.95rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .header__cta--primary {
-  background: var(--accent);
-  color: var(--accent-dark);
+  background: #22c55e;
+  color: #ffffff;
 }
 
 .header__cta--primary:hover {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
+  background: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
 }
 
 .header__menu-btn {
@@ -96,7 +112,7 @@
 .header__menu-btn span {
   width: 22px;
   height: 2px;
-  background: #f1f5f9;
+  background: #374151;
   border-radius: 1px;
   transition: transform 0.2s ease;
 }
@@ -109,8 +125,8 @@
     right: 0;
     flex-direction: column;
     padding: 1.5rem;
-    background: #1e293b;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
     gap: 1rem;
     transform: translateY(-100%);
     opacity: 0;

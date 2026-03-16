@@ -1,0 +1,26 @@
+version: "3.1"
+forms:
+  report_incident_form:
+    required_slots:
+      - city
+      - landmark
+      - incident_type
+      - severity
+  sos_form:
+    required_slots:
+      - city
+      - landmark
+      - service
+
+slots:
+  city:
+    type: text
+    influence_conversation: true
+  landmark:
+    type: text
+  incident_type:
+    type: text
+  severity:
+    type: text
+  service:
+    type: text

@@ -1,0 +1,12 @@
+service,phone_number,when_to_contact,notes,city
+Police,15,"Crime, rash drivers, accidents",Karachi Police Control Room,Karachi
+Traffic Police,1915,"Traffic accidents, broken signals, reckless driving",Karachi Traffic Police Helpline,Karachi
+Rescue 1122,1122,"Ambulance, fire, serious accidents",Rescue 1122 — Karachi,Karachi
+Motorway Police,130,Highway/motorway accidents & closures,National Highways & Motorway Police,Karachi
+Edhi Ambulance,115,Ambulance and first aid transport,Edhi Foundation,Karachi
+Chhipa Ambulance,1020,Ambulance services (esp. Sindh cities),Chhipa Welfare,Karachi
+Fire Brigade,16,"Fire, explosion, electrical fire",Karachi Fire Service,Karachi
+Mechanic (example),0300-1234567,"Breakdowns, won’t start, minor repairs",24/7 roadside mechanic — Karachi,Karachi
+Fuel Delivery (example),0312-9876543,Ran out of fuel on road,Emergency fuel — Karachi,Karachi
+Towing Service (example),0345-2223344,Immobilized vehicle after breakdown/accident,Towing — Karachi,Karachi
+Major Hospital ER (example),03xx-xxxxxxx,Emergency department (injuries/accidents),Nearest major hospital — Karachi,Karachi

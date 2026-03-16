@@ -1,0 +1,12 @@
+service,phone_number,when_to_contact,notes,city
+Police,15,"Crime, rash drivers, accidents",Lahore Police Control Room,Lahore
+Traffic Police,1915,"Traffic accidents, broken signals, reckless driving",Lahore Traffic Police Helpline,Lahore
+Rescue 1122,1122,"Ambulance, fire, serious accidents",Rescue 1122 — Lahore,Lahore
+Motorway Police,130,Highway/motorway accidents & closures,National Highways & Motorway Police,Lahore
+Edhi Ambulance,115,Ambulance and first aid transport,Edhi Foundation,Lahore
+Chhipa Ambulance,1020,Ambulance services (esp. Sindh cities),Chhipa Welfare,Lahore
+Fire Brigade,16,"Fire, explosion, electrical fire",Lahore Fire Service,Lahore
+Mechanic (example),0300-1234567,"Breakdowns, won’t start, minor repairs",24/7 roadside mechanic — Lahore,Lahore
+Fuel Delivery (example),0312-9876543,Ran out of fuel on road,Emergency fuel — Lahore,Lahore
+Towing Service (example),0345-2223344,Immobilized vehicle after breakdown/accident,Towing — Lahore,Lahore
+Major Hospital ER (example),03xx-xxxxxxx,Emergency department (injuries/accidents),Nearest major hospital — Lahore,Lahore

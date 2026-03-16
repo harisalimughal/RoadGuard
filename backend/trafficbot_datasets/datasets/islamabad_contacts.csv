@@ -1,0 +1,12 @@
+service,phone_number,when_to_contact,notes,city
+Police,15,"Crime, rash drivers, accidents",Islamabad Police Control Room,Islamabad
+Traffic Police,1915,"Traffic accidents, broken signals, reckless driving",Islamabad Traffic Police Helpline,Islamabad
+Rescue 1122,1122,"Ambulance, fire, serious accidents",Rescue 1122 — Islamabad,Islamabad
+Motorway Police,130,Highway/motorway accidents & closures,National Highways & Motorway Police,Islamabad
+Edhi Ambulance,115,Ambulance and first aid transport,Edhi Foundation,Islamabad
+Chhipa Ambulance,1020,Ambulance services (esp. Sindh cities),Chhipa Welfare,Islamabad
+Fire Brigade,16,"Fire, explosion, electrical fire",Islamabad Fire Service,Islamabad
+Mechanic (example),0300-1234567,"Breakdowns, won’t start, minor repairs",24/7 roadside mechanic — Islamabad,Islamabad
+Fuel Delivery (example),0312-9876543,Ran out of fuel on road,Emergency fuel — Islamabad,Islamabad
+Towing Service (example),0345-2223344,Immobilized vehicle after breakdown/accident,Towing — Islamabad,Islamabad
+Major Hospital ER (example),03xx-xxxxxxx,Emergency department (injuries/accidents),Nearest major hospital — Islamabad,Islamabad

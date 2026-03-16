@@ -3,14 +3,76 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import './AppProduct.css'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+
 const INITIAL_MESSAGES = [
   { id: 1, role: 'assistant', text: '🤖 Hello! How can I assist you today?' },
+]
+
+const THINKING_PHRASES = [
+  'Analyzing your query...',
+  'Checking live safety data...',
+  'Scanning incident records...',
+  'Routing your request...',
+  'Reviewing road conditions...',
+  'Looking up emergency contacts...',
 ]
 
 const DEFAULT_ALERTS = [
   'Accident reported near I-8',
   'Heavy rain detected',
 ]
+
+const KNOWN_CITIES = [
+  'Islamabad',
+  'Rawalpindi',
+  'Lahore',
+  'Karachi',
+  'Peshawar',
+  'Quetta',
+  'Multan',
+  'Faisalabad',
+  'Gujranwala',
+  'Hyderabad',
+  'Sialkot',
+  'Sukkur',
+]
+
+const SEVERITY_COLOR_MAP = {
+  high: '#ef4444',
+  medium: '#f59e0b',
+  low: '#22c55e',
+}
+
+function inferCityFromText(value) {
+  const locationText = String(value || '').toLowerCase()
+  const matchedCity = KNOWN_CITIES.find((cityName) => locationText.includes(cityName.toLowerCase()))
+  return matchedCity || 'Islamabad'
+}
+
+function toIncidentKey(value) {
+  return String(value || 'accident')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '') || 'accident'
+}
+
+async function requestBackend(path, options = {}) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+    ...options,
+  })
+
+  if (!response.ok) {
+    throw new Error(`Backend request failed: ${response.status}`)
+  }
+
+  return response.json()
+}
 
 function getAssistantReply(message) {
   const normalizedMessage = message.toLowerCase()
@@ -49,17 +111,29 @@ export default function AppProduct() {
   const [chatInput, setChatInput] = useState('')
   const [chatMessages, setChatMessages] = useState(INITIAL_MESSAGES)
   const [chatTyping, setChatTyping] = useState(false)
+  const [thinkingPhrase, setThinkingPhrase] = useState(THINKING_PHRASES[0])
+  const [chatSuggestions, setChatSuggestions] = useState([
+    'Show alerts near me',
+    'Recent incidents in my city',
+    'Need SOS emergency contact',
+  ])
   const [currentAddress, setCurrentAddress] = useState('Detecting your current location...')
   const [currentLocationUpdatedAt, setCurrentLocationUpdatedAt] = useState('Updated just now')
   const [currentCoordinates, setCurrentCoordinates] = useState(null)
+  const [currentCity, setCurrentCity] = useState('Islamabad')
   const [safetyAlerts, setSafetyAlerts] = useState(DEFAULT_ALERTS)
+  const [incidents, setIncidents] = useState([])
+  const [sosContact, setSosContact] = useState(null)
   const chatMessagesRef = useRef(null)
+  const chatBottomRef = useRef(null)
   const mainMapContainerRef = useRef(null)
   const miniMapContainerRef = useRef(null)
   const mainMapInstanceRef = useRef(null)
   const miniMapInstanceRef = useRef(null)
   const mainMarkerRef = useRef(null)
   const miniMarkerRef = useRef(null)
+  const mainIncidentsLayerRef = useRef(null)
+  const miniIncidentsLayerRef = useRef(null)
   const geoWatchIdRef = useRef(null)
   const lastGeocodeKeyRef = useRef('')
   const emergencyContactsListRef = useRef(null)
@@ -104,6 +178,8 @@ export default function AppProduct() {
 
     mainMarkerRef.current = L.circleMarker(defaultCenter, markerStyle).addTo(mainMapInstanceRef.current)
     miniMarkerRef.current = L.circleMarker(defaultCenter, markerStyle).addTo(miniMapInstanceRef.current)
+    mainIncidentsLayerRef.current = L.layerGroup().addTo(mainMapInstanceRef.current)
+    miniIncidentsLayerRef.current = L.layerGroup().addTo(miniMapInstanceRef.current)
 
     let isMounted = true
 
@@ -136,6 +212,7 @@ export default function AppProduct() {
           const resolvedAddress = reverseData?.display_name || `Lat ${latitude.toFixed(5)}, Lon ${longitude.toFixed(5)}`
           setCurrentAddress(resolvedAddress)
           setCurrentLocationUpdatedAt('Updated just now')
+          setCurrentCity(inferCityFromText(resolvedAddress))
 
           const areaLabel = resolvedAddress.split(',').slice(0, 3).join(',').trim()
           setSafetyAlerts([
@@ -149,6 +226,7 @@ export default function AppProduct() {
           const fallbackLocation = `Lat ${latitude.toFixed(5)}, Lon ${longitude.toFixed(5)}`
           setCurrentAddress(fallbackLocation)
           setCurrentLocationUpdatedAt('Updated just now')
+          setCurrentCity('Islamabad')
           setSafetyAlerts([
             `Live location update: ${fallbackLocation}`,
             'Nearby hazard data may be limited; proceed carefully',
@@ -195,13 +273,94 @@ export default function AppProduct() {
       miniMapInstanceRef.current?.remove()
       mainMapInstanceRef.current = null
       miniMapInstanceRef.current = null
+      mainIncidentsLayerRef.current = null
+      miniIncidentsLayerRef.current = null
     }
   }, [])
 
   useEffect(() => {
-    if (chatOpen && chatMessagesRef.current) {
-      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight
+    let isActive = true
+
+    const loadAlertsAndIncidents = async () => {
+      try {
+        const [alertsResponse, incidentsResponse] = await Promise.all([
+          requestBackend(`/api/alerts?city=${encodeURIComponent(currentCity)}&limit=8`),
+          requestBackend(`/api/incidents?city=${encodeURIComponent(currentCity)}&days=730&limit=140`),
+        ])
+
+        if (!isActive) {
+          return
+        }
+
+        const alertItems = Array.isArray(alertsResponse?.items) ? alertsResponse.items : []
+        const incidentItems = Array.isArray(incidentsResponse?.items) ? incidentsResponse.items : []
+
+        const formattedAlerts = alertItems.slice(0, 8).map((item) => {
+          const title = item?.title || item?.type || 'Safety Alert'
+          const place = item?.location ? ` (${item.location})` : ''
+          return `${title}${place}`
+        })
+
+        setSafetyAlerts(formattedAlerts.length ? formattedAlerts : DEFAULT_ALERTS)
+        setIncidents(incidentItems)
+      } catch {
+        if (!isActive) {
+          return
+        }
+
+        setSafetyAlerts((existingAlerts) => (
+          existingAlerts.length ? existingAlerts : DEFAULT_ALERTS
+        ))
+        setIncidents([])
+      }
     }
+
+    loadAlertsAndIncidents()
+
+    return () => {
+      isActive = false
+    }
+  }, [currentCity])
+
+  useEffect(() => {
+    if (!mainIncidentsLayerRef.current || !miniIncidentsLayerRef.current) {
+      return
+    }
+
+    mainIncidentsLayerRef.current.clearLayers()
+    miniIncidentsLayerRef.current.clearLayers()
+
+    incidents.forEach((incident) => {
+      const lat = Number(incident?.lat)
+      const lng = Number(incident?.lng)
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return
+      }
+
+      const severity = String(incident?.severity || '').toLowerCase()
+      const markerColor = SEVERITY_COLOR_MAP[severity] || '#f97316'
+      const markerOptions = {
+        radius: 7,
+        color: '#ffffff',
+        weight: 1.5,
+        fillColor: markerColor,
+        fillOpacity: 0.95,
+      }
+      const tooltipText = `${incident?.title || incident?.type || 'Incident'}${incident?.location ? ` — ${incident.location}` : ''}`
+      const tooltipOptions = { permanent: false, direction: 'top', opacity: 0.92 }
+
+      L.circleMarker([lat, lng], markerOptions).bindTooltip(tooltipText, tooltipOptions).addTo(mainIncidentsLayerRef.current)
+      L.circleMarker([lat, lng], markerOptions).bindTooltip(tooltipText, tooltipOptions).addTo(miniIncidentsLayerRef.current)
+    })
+  }, [incidents])
+
+  useEffect(() => {
+    if (!chatOpen || !chatBottomRef.current) return
+    const id = setTimeout(() => {
+      chatBottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }, 50)
+    return () => clearTimeout(id)
   }, [chatMessages, chatTyping, chatOpen])
 
   useEffect(() => {
@@ -231,8 +390,8 @@ export default function AppProduct() {
     }
   }, [])
 
-  const handleSendMessage = () => {
-    const trimmedInput = chatInput.trim()
+  const sendChatMessage = async (messageText) => {
+    const trimmedInput = String(messageText || '').trim()
 
     if (!trimmedInput) {
       return
@@ -246,9 +405,54 @@ export default function AppProduct() {
 
     setChatMessages((prevMessages) => [...prevMessages, userMessage])
     setChatInput('')
+    setChatSuggestions([])
+    setThinkingPhrase(THINKING_PHRASES[Math.floor(Math.random() * THINKING_PHRASES.length)])
     setChatTyping(true)
 
-    setTimeout(() => {
+    const thinkingStart = Date.now()
+    const MIN_THINKING_MS = 900
+
+    try {
+      const chatResponse = await requestBackend('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          text: trimmedInput,
+          city: currentCity,
+        }),
+      })
+
+      const backendMessage = chatResponse?.message || getAssistantReply(trimmedInput)
+      const responseData = chatResponse?.data || {}
+      const extraHints = []
+
+      if (Array.isArray(responseData.alerts) && responseData.alerts.length) {
+        extraHints.push(`${responseData.alerts.length} live alert(s) found.`)
+      }
+      if (Array.isArray(responseData.incidents) && responseData.incidents.length) {
+        extraHints.push(`${responseData.incidents.length} related incident(s) found.`)
+      }
+      if (responseData.contact?.phone_number) {
+        extraHints.push(`Emergency: ${responseData.contact.service} (${responseData.contact.phone_number})`)
+      }
+
+      if (Array.isArray(responseData.suggestions) && responseData.suggestions.length) {
+        setChatSuggestions(responseData.suggestions.slice(0, 4))
+      }
+
+      const elapsed = Date.now() - thinkingStart
+      const remaining = MIN_THINKING_MS - elapsed
+      if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining))
+      }
+
+      const assistantMessage = {
+        id: Date.now() + 1,
+        role: 'assistant',
+        text: [backendMessage, ...extraHints].join('\n'),
+      }
+
+      setChatMessages((prevMessages) => [...prevMessages, assistantMessage])
+    } catch {
       const assistantMessage = {
         id: Date.now() + 1,
         role: 'assistant',
@@ -256,8 +460,25 @@ export default function AppProduct() {
       }
 
       setChatMessages((prevMessages) => [...prevMessages, assistantMessage])
+      setChatSuggestions([
+        'Show alerts near me',
+        'Show recent accidents',
+        'Need SOS help',
+      ])
+    } finally {
       setChatTyping(false)
-    }, 650)
+    }
+  }
+
+  const handleSendMessage = () => {
+    sendChatMessage(chatInput)
+  }
+
+  const handleSuggestionClick = (suggestion) => {
+    if (chatTyping) {
+      return
+    }
+    sendChatMessage(suggestion)
   }
 
   const handleComposerKeyDown = (event) => {
@@ -294,12 +515,33 @@ export default function AppProduct() {
 
   const handleSosShare = async () => {
     const emergencyMessage = "Hi It's emergency I need help"
+    const primaryIncidentType = incidents[0]?.type || reportForm.incidentType || 'accident'
+    const incidentKey = toIncidentKey(primaryIncidentType)
+
+    let contactFromApi = null
+
+    try {
+      contactFromApi = await requestBackend('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          incident_key: incidentKey,
+          city: currentCity,
+        }),
+      })
+      setSosContact(contactFromApi)
+    } catch {
+      contactFromApi = null
+    }
+
     const locationLine = currentAddress ? `Current location: ${currentAddress}` : 'Current location is being detected.'
     const mapsLink = currentCoordinates
       ? `https://www.google.com/maps?q=${currentCoordinates.latitude},${currentCoordinates.longitude}`
       : ''
+    const contactLine = contactFromApi?.phone_number
+      ? `Emergency contact: ${contactFromApi.service || 'Support'} - ${contactFromApi.phone_number}`
+      : ''
 
-    const shareText = [emergencyMessage, locationLine, mapsLink].filter(Boolean).join('\n')
+    const shareText = [emergencyMessage, locationLine, contactLine, mapsLink].filter(Boolean).join('\n')
 
     try {
       if (navigator.share) {
@@ -335,7 +577,9 @@ export default function AppProduct() {
               >
                 ☰
               </button>
-              <h1 className="app-product__title">Welcome to RoadGuard</h1>
+              <h1 className="app-product__title">
+                <img src="/RoadGuardLogo.png" alt="RoadGuard" className="app-product__logo-img" />
+              </h1>
               <div className="app-product__top-actions">
                 <button type="button" className="app-product__icon-btn app-product__icon-btn--filled" aria-label="Notifications">
                   <svg className="app-product__icon-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -387,11 +631,9 @@ export default function AppProduct() {
         <main className="app-product__content">
           <section className="app-product__map app-product__map--large" aria-label="Main map preview">
             <div ref={mainMapContainerRef} className="app-product__leaflet-map" />
-            <div className="tag tag--danger" style={{ top: '32%', left: '34%' }}>⚠ Accident</div>
-            <div className="tag tag--warn" style={{ top: '18%', left: '52%' }}>⚠</div>
-            <div className="tag tag--warn" style={{ top: '54%', left: '55%' }}>🚗 Pothole</div>
-            <div className="tag tag--warn" style={{ top: '75%', left: '36%' }}>🚗 Reckless Driver</div>
-            <div className="tag tag--safe" style={{ top: '66%', left: '16%' }}>✓</div>
+            <div className="tag tag--safe" style={{ top: '8%', left: '2%' }}>
+              {`Live incidents: ${incidents.length}`}
+            </div>
           </section>
 
           <section className="app-product__lower-grid">
@@ -419,9 +661,9 @@ export default function AppProduct() {
               <div className="app-product__right-panel">
               <section className="app-product__map app-product__map--small" aria-label="Secondary map preview">
                 <div ref={miniMapContainerRef} className="app-product__leaflet-map" />
-                <div className="tag tag--danger" style={{ top: '25%', left: '44%' }}>⚠ Accident</div>
-                <div className="tag tag--warn" style={{ top: '58%', left: '68%' }}>🚗 Pothole</div>
-                <div className="tag tag--safe" style={{ top: '66%', left: '40%' }}>✓</div>
+                <div className="tag tag--safe" style={{ top: '8%', left: '4%' }}>
+                  {currentCity}
+                </div>
               </section>
               <article className="card card--location">
                 <div className="card__title-row">
@@ -433,6 +675,12 @@ export default function AppProduct() {
               <article className="card card--contacts card--contacts-inline">
                 <h2 className="card__title">Emergency Contacts</h2>
                 <ul ref={emergencyContactsListRef} className="card__list">
+                  {sosContact?.phone_number && (
+                    <li>
+                      <span className="card__contact-main"><span>{sosContact.service || 'SOS Contact'}</span><strong>{sosContact.phone_number}</strong></span>
+                      <a href={`tel:${sosContact.phone_number}`} className="card__call-btn" aria-label={`Call ${sosContact.service || 'SOS Contact'}`}>📞</a>
+                    </li>
+                  )}
                   <li>
                     <span className="card__contact-main"><span> Police</span><strong>15</strong></span>
                     <a href="tel:15" className="card__call-btn" aria-label="Call Police">📞</a>
@@ -545,8 +793,31 @@ export default function AppProduct() {
                     {message.text}
                   </div>
                 ))}
-                {chatTyping && <div className="app-product__chat-message app-product__chat-message--assistant">Typing...</div>}
+                {chatTyping && (
+                  <div className="app-product__chat-message app-product__chat-message--assistant app-product__chat-thinking">
+                    <span className="app-product__thinking-dots" aria-hidden="true">
+                      <span /><span /><span />
+                    </span>
+                  </div>
+                )}
+                <div ref={chatBottomRef} />
               </div>
+
+              {chatSuggestions.length > 0 && (
+                <div className="app-product__chat-suggestions" aria-label="Suggested chat prompts">
+                  {chatSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      className="app-product__suggestion-chip"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      disabled={chatTyping}
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               <div className="app-product__chat-composer">
                 <textarea
@@ -557,7 +828,7 @@ export default function AppProduct() {
                   onChange={(event) => setChatInput(event.target.value)}
                   onKeyDown={handleComposerKeyDown}
                 />
-                <button type="button" className="app-product__chat-send" onClick={handleSendMessage}>
+                <button type="button" className="app-product__chat-send" onClick={handleSendMessage} disabled={chatTyping}>
                   Send
                 </button>
               </div>
