@@ -6,16 +6,23 @@ import './AppProduct.css'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
 
 const INITIAL_MESSAGES = [
-  { id: 1, role: 'assistant', text: '🤖 Hello! How can I assist you today?' },
+  { id: 1, role: 'assistant', text: '✨ Hello! How can I assist you today?' },
 ]
 
 const THINKING_PHRASES = [
-  'Analyzing your query...',
+  'Encoding incidents for retrieval...',
   'Checking live safety data...',
   'Scanning incident records...',
-  'Routing your request...',
+  'Vectorizing safety query...',
   'Reviewing road conditions...',
   'Looking up emergency contacts...',
+]
+
+const SLOW_PHRASES = [
+  'Taking more than expected...',
+  'Low Resource / CPU spike detected...',
+  'Trying to complete semantic search...',
+  'Running deeper vector matching...',
 ]
 
 const DEFAULT_ALERTS = [
@@ -124,6 +131,7 @@ export default function AppProduct() {
   const [safetyAlerts, setSafetyAlerts] = useState(DEFAULT_ALERTS)
   const [incidents, setIncidents] = useState([])
   const [sosContact, setSosContact] = useState(null)
+  const [livePopup, setLivePopup] = useState(null)
   const chatMessagesRef = useRef(null)
   const chatBottomRef = useRef(null)
   const mainMapContainerRef = useRef(null)
@@ -323,6 +331,38 @@ export default function AppProduct() {
   }, [currentCity])
 
   useEffect(() => {
+    if (incidents.length === 0 && safetyAlerts === DEFAULT_ALERTS) return
+
+    const triggerPopup = () => {
+      let popupMsg = ''
+      if (incidents.length > 0 && Math.random() > 0.4) {
+        const inc = incidents[Math.floor(Math.random() * Math.min(incidents.length, 4))]
+        const title = inc.title || inc.type || 'Hazard'
+        const severity = String(inc.severity || '').toLowerCase()
+        const warning = severity === 'high' ? 'Watch Out !' : 'Be Cautious !'
+        popupMsg = `${title} reported ahead, ${warning}`
+      } else if (safetyAlerts.length > 0 && safetyAlerts !== DEFAULT_ALERTS) {
+        const alertStr = safetyAlerts[Math.floor(Math.random() * Math.min(safetyAlerts.length, 3))]
+        const cleanedAlert = alertStr.split(' (')[0]
+        popupMsg = `${cleanedAlert} nearby, Watch Out !`
+      }
+      
+      if (popupMsg) {
+        setLivePopup(popupMsg)
+        setTimeout(() => setLivePopup(null), 6000)
+      }
+    }
+
+    const initTimer = setTimeout(triggerPopup, 2500)
+    const intervalTimer = setInterval(triggerPopup, 16000)
+
+    return () => {
+      clearTimeout(initTimer)
+      clearInterval(intervalTimer)
+    }
+  }, [incidents, safetyAlerts])
+
+  useEffect(() => {
     if (!mainIncidentsLayerRef.current || !miniIncidentsLayerRef.current) {
       return
     }
@@ -410,7 +450,14 @@ export default function AppProduct() {
     setChatTyping(true)
 
     const thinkingStart = Date.now()
-    const MIN_THINKING_MS = 900
+
+    const thinkingInterval = setInterval(() => {
+      const elapsed = Date.now() - thinkingStart
+      const pool = elapsed > 3500 ? SLOW_PHRASES : THINKING_PHRASES
+      setThinkingPhrase(pool[Math.floor(Math.random() * pool.length)])
+    }, 1500)
+
+    const MIN_THINKING_MS = 1200
 
     try {
       const chatResponse = await requestBackend('/api/chat', {
@@ -418,6 +465,7 @@ export default function AppProduct() {
         body: JSON.stringify({
           text: trimmedInput,
           city: currentCity,
+          address: currentAddress,
         }),
       })
 
@@ -466,6 +514,7 @@ export default function AppProduct() {
         'Need SOS help',
       ])
     } finally {
+      clearInterval(thinkingInterval)
       setChatTyping(false)
     }
   }
@@ -564,6 +613,50 @@ export default function AppProduct() {
 
   return (
     <div className="app-product" aria-label="Traffic Safety & Alert app screen">
+      {livePopup && (
+        <div 
+          className="app-product__live-popup" 
+          role="alert"
+          style={{
+            position: 'fixed',
+            top: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            color: '#0f172a',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            zIndex: 99999,
+            fontWeight: 500,
+            fontSize: '0.95rem',
+            animation: 'slideDownFade 0.5s ease-out forwards',
+            border: '1px solid rgba(203, 213, 225, 0.8)',
+            backdropFilter: 'blur(12px)',
+            maxWidth: '90%',
+          }}
+        >
+          <span style={{ fontSize: '1.3rem' }}>🚨</span>
+          <p style={{ margin: 0, padding: 0 }}>{livePopup}</p>
+          <button 
+            type="button" 
+            onClick={() => setLivePopup(null)} 
+            style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '1.4rem', cursor: 'pointer', marginLeft: '6px', opacity: 0.8, lineHeight: 1 }}
+            title="Dismiss"
+          >
+            ×
+          </button>
+          <style>{`
+            @keyframes slideDownFade {
+              from { opacity: 0; transform: translate(-50%, -20px); }
+              to { opacity: 1; transform: translate(-50%, 0); }
+            }
+          `}</style>
+        </div>
+      )}
       <div className="app-product__phone">
         <header className="app-product__header-shell">
           <div className="app-product__topbar">
@@ -643,35 +736,6 @@ export default function AppProduct() {
                 <button type="button" className="action-btn action-btn--sos" onClick={handleSosShare}>📞 SOS</button>
               </div>
               <div className="app-product__left-panel">
-              <article className="card card--alerts">
-                <h2 className="card__title card__title--warning">⚠ Safety Alerts:</h2>
-                <ul className="card__bullets">
-                  {safetyAlerts.map((alertItem) => (
-                    <li key={alertItem} className="card__alert-item">
-                      <span className="card__alert-sign" aria-hidden="true">!</span>
-                      <span>{alertItem}</span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
-              </div>
-            </div>
-
-            <div className="app-product__right-half">
-              <div className="app-product__right-panel">
-              <section className="app-product__map app-product__map--small" aria-label="Secondary map preview">
-                <div ref={miniMapContainerRef} className="app-product__leaflet-map" />
-                <div className="tag tag--safe" style={{ top: '8%', left: '4%' }}>
-                  {currentCity}
-                </div>
-              </section>
-              <article className="card card--location">
-                <div className="card__title-row">
-                  <h2 className="card__title">Current Location</h2>
-                  <p className="card__location-meta">{currentLocationUpdatedAt}</p>
-                </div>
-                <p className="card__location-text">{currentAddress}</p>
-              </article>
               <article className="card card--contacts card--contacts-inline">
                 <h2 className="card__title">Emergency Contacts</h2>
                 <ul ref={emergencyContactsListRef} className="card__list">
@@ -681,35 +745,40 @@ export default function AppProduct() {
                       <a href={`tel:${sosContact.phone_number}`} className="card__call-btn" aria-label={`Call ${sosContact.service || 'SOS Contact'}`}>📞</a>
                     </li>
                   )}
-                  <li>
-                    <span className="card__contact-main"><span> Police</span><strong>15</strong></span>
-                    <a href="tel:15" className="card__call-btn" aria-label="Call Police">📞</a>
-                  </li>
-                  <li>
-                    <span className="card__contact-main"><span>Ambulance</span><strong>1122</strong></span>
-                    <a href="tel:1122" className="card__call-btn" aria-label="Call Ambulance">📞</a>
-                  </li>
-                  <li>
-                    <span className="card__contact-main"><span>Roadside Help</span><strong>130</strong></span>
-                    <a href="tel:130" className="card__call-btn" aria-label="Call Roadside Help">📞</a>
-                  </li>
-                  <li>
-                    <span className="card__contact-main"><span>Traffic Police</span><strong>1915</strong></span>
-                    <a href="tel:1915" className="card__call-btn" aria-label="Call Traffic Police">📞</a>
-                  </li>
-                  <li>
-                    <span className="card__contact-main"><span>Fire Brigade</span><strong>16</strong></span>
-                    <a href="tel:16" className="card__call-btn" aria-label="Call Fire Brigade">📞</a>
-                  </li>
-                  <li>
-                    <span className="card__contact-main"><span>Rescue Helpline</span><strong>1122</strong></span>
-                    <a href="tel:1122" className="card__call-btn" aria-label="Call Rescue Helpline">📞</a>
-                  </li>
-                  <li>
-                    <span className="card__contact-main"><span>Highway Patrol</span><strong>130</strong></span>
-                    <a href="tel:130" className="card__call-btn" aria-label="Call Highway Patrol">📞</a>
-                  </li>
+                  <li><span className="card__contact-main"><span> Police</span><strong>15</strong></span><a href="tel:15" className="card__call-btn" aria-label="Call Police">📞</a></li>
+                  <li><span className="card__contact-main"><span>Ambulance</span><strong>1122</strong></span><a href="tel:1122" className="card__call-btn" aria-label="Call Ambulance">📞</a></li>
+                  <li><span className="card__contact-main"><span>Roadside Help</span><strong>130</strong></span><a href="tel:130" className="card__call-btn" aria-label="Call Roadside Help">📞</a></li>
+                  <li><span className="card__contact-main"><span>Traffic Police</span><strong>1915</strong></span><a href="tel:1915" className="card__call-btn" aria-label="Call Traffic Police">📞</a></li>
+                  <li><span className="card__contact-main"><span>Fire Brigade</span><strong>16</strong></span><a href="tel:16" className="card__call-btn" aria-label="Call Fire Brigade">📞</a></li>
+                  <li><span className="card__contact-main"><span>Rescue Helpline</span><strong>1122</strong></span><a href="tel:1122" className="card__call-btn" aria-label="Call Rescue Helpline">📞</a></li>
+                  <li><span className="card__contact-main"><span>Highway Patrol</span><strong>130</strong></span><a href="tel:130" className="card__call-btn" aria-label="Call Highway Patrol">📞</a></li>
                 </ul>
+              </article>
+              </div>
+            </div>
+
+            <div className="app-product__right-half">
+              <div className="app-product__right-panel">
+              <section className="app-product__map app-product__map--small" aria-label="Secondary map preview">
+                <div ref={miniMapContainerRef} className="app-product__leaflet-map" />
+                <div className="tag tag--safe" style={{ top: '8%', left: '4%' }}>{currentCity}</div>
+              </section>
+              <article className="card card--location">
+                <div className="card__title-row">
+                  <h2 className="card__title">Current Location</h2>
+                  <p className="card__location-meta">{currentLocationUpdatedAt}</p>
+                </div>
+                <p className="card__location-text">{currentAddress}</p>
+              </article>
+              <article className="card card--alerts">
+                <h2 className="card__title card__title--warning">⚠ Safety Alerts:</h2>
+                <div style={{ overflow: 'hidden', maxHeight: '140px', position: 'relative', maskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)', WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)' }}>
+                  <ul className="card__bullets" style={{ animation: 'scrollUp 20s linear infinite', margin: 0 }}>
+                    {safetyAlerts.map((alertItem, idx) => (<li key={`orig-${idx}`} className="card__alert-item"><span className="card__alert-sign" aria-hidden="true">!</span><span>{alertItem}</span></li>))}
+                    {safetyAlerts.map((alertItem, idx) => (<li key={`dup-${idx}`} className="card__alert-item"><span className="card__alert-sign" aria-hidden="true">!</span><span>{alertItem}</span></li>))}
+                  </ul>
+                  <style>{`@keyframes scrollUp{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}.card__bullets:hover{animation-play-state:paused!important}`}</style>
+                </div>
               </article>
               </div>
             </div>
@@ -790,13 +859,21 @@ export default function AppProduct() {
                     key={message.id}
                     className={`app-product__chat-message app-product__chat-message--${message.role}`}
                   >
-                    {message.text}
+                    {String(message.text).split('\n').map((line, idx) => (
+                      <span key={idx}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
                   </div>
                 ))}
                 {chatTyping && (
                   <div className="app-product__chat-message app-product__chat-message--assistant app-product__chat-thinking">
-                    <span className="app-product__thinking-dots" aria-hidden="true">
+                    <span className="app-product__thinking-dots" aria-hidden="true" style={{ display: 'inline-block', marginRight: '6px' }}>
                       <span /><span /><span />
+                    </span>
+                    <span style={{ fontSize: '0.85em', opacity: 0.6, fontStyle: 'italic', display: 'inline-block', transform: 'translateY(-1px)' }}>
+                      {thinkingPhrase}
                     </span>
                   </div>
                 )}
@@ -853,7 +930,9 @@ export default function AppProduct() {
               aria-expanded={chatOpen}
               onClick={() => setChatOpen((prev) => !prev)}
             >
-              🤖
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '24px', height: '24px', display: 'block' }}>
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+              </svg>
             </button>
           </div>
         </div>

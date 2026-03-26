@@ -7,7 +7,9 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-
+import numpy as np
+import faiss
+from sentence_transformers import SentenceTransformer
 CITY_CENTERS: dict[str, tuple[float, float]] = {
     "islamabad": (33.6844, 73.0479),
     "rawalpindi": (33.5651, 73.0169),
@@ -65,6 +67,8 @@ class RoadGuardDataStore:
         self.backend_root = backend_root
         self.dataset_root = backend_root / "trafficbot_datasets" / "datasets"
         self.nlu_root = backend_root / "trafficbot_datasets" / "nlu_rasa" / "nlu"
+        self.encoder: SentenceTransformer | None = None
+        self.faiss_index: faiss.IndexFlatL2 | None = None
 
         self.incidents = self._read_csv("incidents_master_20k.csv")
         self.accidents = self._read_csv("accidents_5000.csv")
@@ -89,6 +93,7 @@ class RoadGuardDataStore:
         self.city_lookup = self._read_lookup("lookup_city.txt")
 
         self._normalize_incident_dates()
+        self._build_retrieval_index()
 
     def _read_csv(self, file_name: str) -> pd.DataFrame:
         path = self.dataset_root / file_name
@@ -106,6 +111,28 @@ class RoadGuardDataStore:
         if self.incidents.empty or "date" not in self.incidents.columns:
             return
         self.incidents["date_parsed"] = pd.to_datetime(self.incidents["date"], errors="coerce", utc=True)
+
+    def _build_retrieval_index(self) -> None:
+        if self.incidents.empty:
+            return
+        
+        # Combine columns for search as per Step 2
+        title = self.incidents["title"].fillna("")
+        desc = self.incidents["description"].fillna("")
+        loc = self.incidents["location"].fillna("")
+        self.incidents["text"] = title + " | " + desc + " | " + loc
+
+        print("Building FAISS retrieval index. Loading model...")
+        self.encoder = SentenceTransformer("all-MiniLM-L6-v2")
+        texts = self.incidents["text"].tolist()
+        
+        print("Encoding incidents for retrieval...")
+        embeddings = self.encoder.encode(texts, convert_to_numpy=True)
+        
+        dim = embeddings.shape[1]
+        self.faiss_index = faiss.IndexFlatL2(dim)
+        self.faiss_index.add(embeddings)
+        print(f"FAISS index built with {self.faiss_index.ntotal} vectors.")
 
     @staticmethod
     def _normalize_key(value: str | None) -> str:
@@ -180,7 +207,7 @@ class RoadGuardDataStore:
 
         rows: list[dict[str, Any]] = []
         for _, row in data.head(max(1, min(limit, 200))).iterrows():
-            row_dict = row.to_dict()
+            row_dict = row.fillna("").to_dict()
             lat, lng = self._coordinates_for_row(row_dict)
             rows.append(
                 {
@@ -198,6 +225,51 @@ class RoadGuardDataStore:
             )
         return rows
 
+    def search_incidents(self, query: str, city: str | None = None, limit: int = 5) -> list[dict[str, Any]]:
+        if not self.faiss_index or not self.encoder or self.incidents.empty:
+            return []
+
+        query_vec = self.encoder.encode([query], convert_to_numpy=True)
+        # Fetch extra results to allow for deduplication AND geographical filtering
+        _, indices = self.faiss_index.search(query_vec, k=limit * 10)
+
+        rows: list[dict[str, Any]] = []
+        seen = set()
+        city_lower = city.lower() if city else None
+        
+        for idx in indices[0]:
+            if 0 <= idx < len(self.incidents):
+                row_dict = self.incidents.iloc[idx].fillna("").to_dict()
+                
+                if city_lower:
+                    loc = str(row_dict.get("location", "")).lower()
+                    if city_lower not in loc:
+                        continue
+                        
+                dedup_key = (str(row_dict.get("title")), str(row_dict.get("location")))
+                if dedup_key in seen:
+                    continue
+                seen.add(dedup_key)
+                
+                lat, lng = self._coordinates_for_row(row_dict)
+                rows.append(
+                    {
+                        "id": row_dict.get("id"),
+                        "type": row_dict.get("type"),
+                        "title": row_dict.get("title"),
+                        "description": row_dict.get("description"),
+                        "location": row_dict.get("location"),
+                        "severity": row_dict.get("severity"),
+                        "date": row_dict.get("date"),
+                        "source": row_dict.get("source"),
+                        "lat": round(lat, 6),
+                        "lng": round(lng, 6),
+                    }
+                )
+                if len(rows) >= limit:
+                    break
+        return rows
+
     def get_safety_alerts(self, city: str | None, limit: int) -> list[dict[str, Any]]:
         frames: list[tuple[str, pd.DataFrame]] = [
             ("driver", self.driver_alerts),
@@ -213,7 +285,7 @@ class RoadGuardDataStore:
             if city:
                 sample = sample[sample["location"].fillna("").str.lower().str.contains(city.lower())]
             for _, row in sample.head(limit).iterrows():
-                row_dict = row.to_dict()
+                row_dict = row.fillna("").to_dict()
                 merged_rows.append(
                     {
                         "domain": alert_domain,

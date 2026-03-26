@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import difflib
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -176,13 +177,25 @@ class NLUService:
     def _extract_entities(self, text: str) -> dict[str, str]:
         text_lower = text.lower()
         extracted: dict[str, str] = {}
+        words = set(re.findall(r'\b\w+\b', text_lower))
 
         for entity, term_map in self.entity_vocab.items():
+            found_exact = False
             for term, canonical in sorted(term_map.items(), key=lambda item: len(item[0]), reverse=True):
                 pattern = rf"(?<!\w){re.escape(term)}(?!\w)"
                 if re.search(pattern, text_lower):
                     extracted[entity] = canonical
+                    found_exact = True
                     break
+            
+            if not found_exact:
+                terms = list(term_map.keys())
+                for word in words:
+                    if len(word) > 4:
+                        matches = difflib.get_close_matches(word, terms, n=1, cutoff=0.8)
+                        if matches:
+                            extracted[entity] = term_map[matches[0]]
+                            break
 
         return extracted
 

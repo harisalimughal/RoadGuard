@@ -12,19 +12,22 @@ Chat responses now use a 3-layer professional flow:
 
 This keeps routing deterministic while improving conversational quality.
 
+> **Note**: For full architectural details (RAG, FAISS Retrieval, NLU Integration), refer to the [`implementation_plan.md`](./implementation_plan.md) file located in this directory.
 ## Setup
 
 1. Create and activate a Python environment.
-2. Install dependencies:
+2. Install dependencies (including FAISS and Sentence Transformers for semantic search):
 
-```bash
-pip install -r requirements.txt
+```powershell
+# Make sure your Python environment is activated!
+# If `pip` fails on Windows, try `python -m pip` or the full path to python.exe.
+python -m pip install -r requirements.txt
 ```
 
 3. Run server from `backend` folder:
 
-```bash
-uvicorn app.main:app --reload --port 8000
+```powershell
+python -m uvicorn app.main:app --reload --port 8000
 ```
 
 ## What this backend does

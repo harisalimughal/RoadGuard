@@ -15,6 +15,7 @@ from .response_service import ResponseComposer
 class TextRequest(BaseModel):
     text: str = Field(min_length=1)
     city: str | None = None
+    address: str | None = None
 
 
 class IncidentRequest(BaseModel):
@@ -134,8 +135,14 @@ def chat(payload: TextRequest) -> dict[str, Any]:
     confidence = float(nlu_result.get("confidence") or 0.0)
     entities = nlu_result.get("entities", {})
     text_lower = payload.text.lower()
-    resolved_city = payload.city or entities.get("city")
+    resolved_city = entities.get("city") or payload.city
     incident_key = entities.get("incident_type") or entities.get("issue") or "accident"
+
+    print(f"\n--- Chat Request Debug ---")
+    print(f"User Input: {payload.text}")
+    print(f"Detected Intent: {intent} (Conf: {confidence:.2f})")
+    print(f"Extracted Entities: {entities}")
+    print(f"Resolved City: {resolved_city}")
 
     response: dict[str, Any] = {
         "intent": intent,
@@ -175,6 +182,11 @@ def chat(payload: TextRequest) -> dict[str, Any]:
         phrase in text_lower for phrase in ["tell me something", "something", "anything"]
     )
 
+    if any(phrase in text_lower for phrase in ["where am i", "my location", "current city", "my city", "what is my location", "what city", "which city"]):
+        location_desc = payload.address if payload.address else (payload.city.title() if payload.city else "an unknown location")
+        msg = f"📍 Based on your device's GPS signal, your current location is:\n{location_desc}"
+        return _set_message_and_data(response, msg, ["Show alerts near me", "Recent incidents"])
+
     # Small-talk / reaction detector — fires before the vague-prompt guard so casual
     # messages like "haha", "thanks", "wow" get a natural reply instead of a clarify prompt.
     _smalltalk_triggers = [
@@ -210,6 +222,23 @@ def chat(payload: TextRequest) -> dict[str, Any]:
         return _set_message_and_data(response, composed.message, composed.suggestions, "quick_fix", quick_fix)
 
     if intent in {"ask_emergency_contact", "sos_help", "find_nearby_service"}:
+        if "alert" in text_lower or "weather" in text_lower:
+            alerts_data = store.get_safety_alerts(city=resolved_city, limit=8)
+            composed = composer.compose_alerts(payload.text, intent, alerts_data, resolved_city)
+            return _set_message_and_data(response, composed.message, composed.suggestions, "alerts", alerts_data)
+        elif "incident" in text_lower or "accident" in text_lower or "traffic" in text_lower:
+            incidents_data = store.search_incidents(payload.text, city=resolved_city, limit=5)
+            if not incidents_data:
+                incidents_data = store.get_incidents(
+                    city=resolved_city,
+                    incident_type=entities.get("incident_type"),
+                    severity=entities.get("severity"),
+                    days=30,
+                    limit=20,
+                )
+            composed = composer.compose_incidents(payload.text, intent, incidents_data, resolved_city)
+            return _set_message_and_data(response, composed.message, composed.suggestions, "incidents", incidents_data)
+
         contact = store.resolve_contact(incident_key, resolved_city)
         composed = composer.compose_contact(payload.text, intent, contact, resolved_city)
         return _set_message_and_data(response, composed.message, composed.suggestions, "contact", contact)
@@ -222,13 +251,16 @@ def chat(payload: TextRequest) -> dict[str, Any]:
         return _set_message_and_data(response, clarify.message, clarify.suggestions)
 
     if intent in {"report_incident", "ask_safe_route", "ask_recent_incidents", "status_query"}:
-        incidents_data = store.get_incidents(
-            city=resolved_city,
-            incident_type=entities.get("incident_type"),
-            severity=entities.get("severity"),
-            days=30,
-            limit=20,
-        )
+        incidents_data = store.search_incidents(payload.text, city=resolved_city, limit=5)
+        if not incidents_data:
+            incidents_data = store.get_incidents(
+                city=resolved_city,
+                incident_type=entities.get("incident_type"),
+                severity=entities.get("severity"),
+                days=30,
+                limit=20,
+            )
+        print(f"Retrieved Incidents: {len(incidents_data)} items")
         composed = composer.compose_incidents(payload.text, intent, incidents_data, resolved_city)
         return _set_message_and_data(response, composed.message, composed.suggestions, "incidents", incidents_data)
 
@@ -252,13 +284,15 @@ def chat(payload: TextRequest) -> dict[str, Any]:
             return _set_message_and_data(response, composed.message, composed.suggestions, "alerts", alerts_data)
 
         if any(keyword in text_lower for keyword in ["incident", "accident", "crash", "traffic"]):
-            incidents_data = store.get_incidents(
-                city=resolved_city,
-                incident_type=entities.get("incident_type"),
-                severity=entities.get("severity"),
-                days=30,
-                limit=20,
-            )
+            incidents_data = store.search_incidents(payload.text, limit=5)
+            if not incidents_data:
+                incidents_data = store.get_incidents(
+                    city=resolved_city,
+                    incident_type=entities.get("incident_type"),
+                    severity=entities.get("severity"),
+                    days=30,
+                    limit=20,
+                )
             composed = composer.compose_incidents(payload.text, intent, incidents_data, resolved_city)
             return _set_message_and_data(response, composed.message, composed.suggestions, "incidents", incidents_data)
 

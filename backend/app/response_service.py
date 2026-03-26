@@ -107,41 +107,51 @@ class ResponseComposer:
     def compose_alerts(self, user_text: str, intent: str, alerts: list[dict[str, Any]], city: str | None) -> ComposedResponse:
         city_label = self._city_label(city)
         if not alerts:
-            baseline = self._pick_template("alerts", "empty") or (
-                f"I checked the latest safety feed for {city_label}, and there are no new alerts right now."
-            )
+            template = self._pick_template("alerts", "empty")
+            baseline = template.format(city_label=city_label) if template else f"I checked the latest safety feed for {city_label}, and there are no new alerts right now."
             return ComposedResponse(message=self._polish_message(baseline, "alerts"), suggestions=self._suggestions("alerts"))
 
-        top_titles = [self._safe_text(item.get("title") or item.get("type"), "Alert") for item in alerts[:2]]
-        formatted = ", ".join(top_titles)
-        template = self._pick_template("alerts", "templates") or "I found {count} safety alerts for {city_label}. Top risks: {top_items}."
-        baseline = template.format(count=len(alerts), city_label=city_label, top_items=formatted)
-        final = self._polish_message(baseline, "alerts")
+        formatted_lines = [self._polish_message(f"Here are {len(alerts)} localized safety alerts for {city_label}:", "alerts")]
+        for row in alerts[:4]:
+            title = self._safe_text(row.get('title') or row.get('type'), 'Alert')
+            loc = self._safe_text(row.get('location'), '')
+            sev = self._safe_text(row.get('severity'), 'Moderate')
+            formatted_lines.append(f"\n⚠️ {title}")
+            if loc: formatted_lines.append(f"📍 {loc}")
+            formatted_lines.append(f"🔴 Severity: {sev.title()}")
+            
+        final = "\n".join(formatted_lines)
         return ComposedResponse(message=final, suggestions=self._suggestions("alerts"))
 
     def compose_incidents(self, user_text: str, intent: str, incidents: list[dict[str, Any]], city: str | None) -> ComposedResponse:
         city_label = self._city_label(city)
         if not incidents:
-            baseline = self._pick_template("incidents", "empty") or (
-                f"I could not find recent incident records for {city_label}."
-            )
+            template = self._pick_template("incidents", "empty")
+            baseline = template.format(city_label=city_label) if template else f"I could not find recent incident records for {city_label}."
             return ComposedResponse(message=self._polish_message(baseline, "incidents"), suggestions=self._suggestions("incidents"))
 
-        latest = incidents[0]
-        latest_label = self._safe_text(latest.get("title") or latest.get("type"), "incident")
-        latest_location = self._safe_text(latest.get("location"), city_label)
-        latest_item = f"{latest_label} near {latest_location}"
-        template = self._pick_template("incidents", "templates") or "I found {count} recent incidents for {city_label}. Most recent: {latest_item}."
-        baseline = template.format(count=len(incidents), city_label=city_label, latest_item=latest_item)
-        final = self._polish_message(baseline, "incidents")
+        formatted_lines = [self._polish_message(f"Here are the most relevant incidents for {city_label}:", "incidents")]
+        for row in incidents[:3]:
+            title = self._safe_text(row.get('title') or row.get('type'), 'Incident')
+            loc = self._safe_text(row.get('location'), 'unknown location')
+            desc = self._safe_text(row.get('description'), '')
+            sev = self._safe_text(row.get('severity'), 'Moderate')
+            date_val = self._safe_text(row.get('date'), '')
+            
+            formatted_lines.append(f"\n🚨 {title}")
+            formatted_lines.append(f"📍 Location: {loc}")
+            if desc: formatted_lines.append(f"📝 {desc}")
+            formatted_lines.append(f"⚠️ Severity: {sev.title()}")
+            if date_val: formatted_lines.append(f"📅 Date: {date_val}")
+            
+        final = "\n".join(formatted_lines)
         return ComposedResponse(message=final, suggestions=self._suggestions("incidents"))
 
     def compose_contact(self, user_text: str, intent: str, contact: dict[str, Any] | None, city: str | None) -> ComposedResponse:
         city_label = self._city_label(city)
         if not contact:
-            baseline = self._pick_template("contact", "empty") or (
-                "I could not resolve an emergency number yet. Share incident type and city."
-            )
+            template = self._pick_template("contact", "empty")
+            baseline = template.format(city_label=city_label) if template else "I could not resolve an emergency number yet. Share incident type and city."
             return ComposedResponse(message=self._polish_message(baseline, "contact"), suggestions=self._suggestions("contact"))
 
         service = self._safe_text(contact.get("service"), "Emergency Service")
