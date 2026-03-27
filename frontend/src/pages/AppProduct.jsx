@@ -147,15 +147,6 @@ export default function AppProduct() {
   const emergencyContactsListRef = useRef(null)
 
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-
-    return () => {
-      document.body.style.overflow = previousOverflow
-    }
-  }, [])
-
-  useEffect(() => {
     if (!mainMapContainerRef.current || !miniMapContainerRef.current) {
       return
     }
@@ -614,47 +605,17 @@ export default function AppProduct() {
   return (
     <div className="app-product" aria-label="Traffic Safety & Alert app screen">
       {livePopup && (
-        <div 
-          className="app-product__live-popup" 
-          role="alert"
-          style={{
-            position: 'fixed',
-            top: '24px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            color: '#0f172a',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            zIndex: 99999,
-            fontWeight: 500,
-            fontSize: '0.95rem',
-            animation: 'slideDownFade 0.5s ease-out forwards',
-            border: '1px solid rgba(203, 213, 225, 0.8)',
-            backdropFilter: 'blur(12px)',
-            maxWidth: '90%',
-          }}
-        >
-          <span style={{ fontSize: '1.3rem' }}>🚨</span>
-          <p style={{ margin: 0, padding: 0 }}>{livePopup}</p>
+        <div className="app-product__live-popup" role="alert">
+          <span className="app-product__live-popup-icon">🚨</span>
+          <p className="app-product__live-popup-text">{livePopup}</p>
           <button 
             type="button" 
+            className="app-product__live-popup-close"
             onClick={() => setLivePopup(null)} 
-            style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '1.4rem', cursor: 'pointer', marginLeft: '6px', opacity: 0.8, lineHeight: 1 }}
             title="Dismiss"
           >
             ×
           </button>
-          <style>{`
-            @keyframes slideDownFade {
-              from { opacity: 0; transform: translate(-50%, -20px); }
-              to { opacity: 1; transform: translate(-50%, 0); }
-            }
-          `}</style>
         </div>
       )}
       <div className="app-product__phone">
