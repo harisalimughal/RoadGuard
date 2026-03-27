@@ -1,4 +1,0 @@
-Micro P/R/F1: (0.979, 0.979, 0.979)
-Classes: 20
-Train: 5523 | Val: 974
-Vocab: 897

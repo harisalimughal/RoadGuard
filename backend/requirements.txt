@@ -1,9 +1,0 @@
-fastapi
-uvicorn[standard]
-pandas
-scikit-learn
-joblib
-python-dateutil
-sentence-transformers
-faiss-cpu
-numpy
